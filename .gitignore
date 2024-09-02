@@ -1,72 +1,11 @@
-.password
-script.html
-script.log
-script.tex
-figures
-models
-derived_data
-*.pdf
-*.log
-.docx
-.doc
-
-# -*- mode: gitignore; -*-
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# Org-mode
-.org-id-locations
-*_archive
-
-# flymake-mode
-*_flymake.*
-
-# eshell files
-/eshell/history
-/eshell/lastdir
-
-# elpa packages
-/elpa/
-
-# reftex files
-*.rel
-
-# AUCTeX auto folder
-/auto/
-
-# cask packages
-.cask/
-dist/
-
-# Flycheck
-flycheck_*.el
-
-# server auth directory
-/server/
-
-# projectiles files
-.projectile
-
-# directory configuration
-.dir-locals.el
-
-# network security
-/network-security.data
-
-.created-dirs
-.Rhistory
-.~lock.workshop-description.odt#
-
-__pycache__
-.ipynb_checkpoints
-
-*.aux
-*.out
-*.toc
-make.com
+*.rda
+*.html
+*.gz
+*.txt
+*.sqlite
+*.Rproj
+.Rproj.user
+.DS_Store
+.Rproj
+*.docx
+*.doc
