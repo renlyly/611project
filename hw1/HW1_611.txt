@@ -1,0 +1,218 @@
+For this and any homework assignment, feel free to actually type code
+in and run it.
+This is the HW1 from Shilin
+## Problem 1
+Suppose you run this code.
+
+```bash
+alias hello="echo hello world"
+hello
+```
+
+Given that "hello" isn't a file on the path, describe how to modify
+your "evaluation strategy" to account for this new behavior.
+A: When the command is too long and repeated, using alias is a better strategy. When we enter hello the system should check if this command matches any defined alias. If it does, the alias should be expanded and executed as the corresponding command. If not, ubuntu proceeds to search for an executable file with that name in the directories listed in the PATH environment variable.
+
+## Problem 2
+Execute the following code:
+
+```bash
+alias zz=zz
+zz
+```
+
+Does this produce an error message? If it does, what can you conclude
+about how `alias` works?
+A:  Yes below is the error message:
+Command 'zz' not found, but can be installed with:
+apt install fex-utils
+The error occurs because the alias does not have a related expansion. When we define alias zz=zz, the shell interprets zz as an alias to itself, but it doesn't actually expand or resolve it into a valid command or executable. we do not find one in the system's PATH, and throws a "command not found" error.
+
+```bash
+alias aa=bb
+alias bb=aa
+aa
+```
+
+Given what we have learned above (and without running the code\*),
+what do you expect this to do?
+A: It seems that we will have an infinite loop based on these three lines of code. I expect the bash shell will die and run the loop until we stop it.
+\* You can always run the code, but try to figure this out without
+doing so.
+
+## Problem 3
+Create a file called "experiment.sh" that looks like this:
+
+```bash
+#!/bin/bash
+echo "argument number one is $1"
+echo "argument number two is $2"
+echo "rest of the arguments ${@:3}"
+echo "all arguments $@"
+```
+
+And invoke it by saying:
+
+```bash
+chmod u+x ./experiment.sh
+./experiment.sh a b c d e
+```
+
+Describe some new evaluation rules that explain this
+behavior. Experiment! You don't need to get this exactly right.
+
+A: when I run the code the results show that :
+argument number one is a
+argument number two is b
+rest of the arguments c d e
+all arguments a b c d e
+
+Based on the results, I think $1 shows the first argument. $2 shows the second argument. ${@:3} means give me all arguments starting from 3 to n. $@ means give me all arguments. chmod u+x gives us the Execute permissions. 
+This example shows the rules that how the .sh file handles the argument out of the files. 
+## Problem 4
+The first line of the above script (`#!/bin/bash`): what do you
+imagine it does, if anything? What is its purpose? Feel free to Google
+this one or consult some kind of robot.
+
+A： From your lecture and course, my understanding is that this line of code tells the systems we need to execute the code in bash shell language. #! is a special character sequence that specifies the interpreter for a script file. /bin/bash tells the script runs correctly in the Bash shell, even if the user's default shell is different.
+
+
+## Problem 5
+Invoke the script like this:
+
+```bash
+bash ./experiment.sh a 'b c' d
+```
+
+Describe a new evaluation rule to explain the results.
+A: below are the results from ubuntu:
+argument number one is a
+argument number two is b c
+rest of the arguments d
+all arguments a b c d
+
+Difference from Problem 4 now we have a new argument ‘b c’. Based on the results we know the bash shell will treat the character inside ‘’ as a single argument. 
+
+
+## Problem 6
+Reading documentation is very important for technical work, and we
+ought not be intimidated by it. Thus, examine the Docker documentation
+and explain to me the difference between `RUN` and `CMD` lines in a
+Dockerfile.
+
+A: I find the help document from: docker -help
+  run         Create and run a new container from an image
+We could also learn from Learn Doker in y minute that:
+RUN apt-get update
+# run linux commands inside container env, does not affect host env
+# This executes during the time of image creation
+CMD [<args>,...]
+# always part of dockerfile, introduces entry point linux command e.g.
+# `CMD node server.js`
+# This executes after image creation only when the container from the image
+
+Based on my reading in the documentation. I think the RUN instruction is usually used to install packages, set environment variables, and modify files in the container. It affects the image-building process. It sets and updates the environment required for the container to run.
+CMD is not executed when the image is built, but when the container is started. It is used to set the default command when the container is started. There is only one valid CMD. 
+
+
+## Problem 7
+We use a variety of package managers in this class. Briefly describe
+each of the following:
+
+1. apt
+2. pip
+3. install.packages
+A: Basically we used these package managers in Linux, python, and R programming environments separately. I want to used the example in the lecture, If we need to install the ‘matlab’ package in R. we can:
+1.	Open a terminal in R and run: sudo apt install matlab 
+
+2.	Assume we have a package called ‘matlab’ in python we can run pip install matlab in python
+
+3.	 In R console run: install.packages(‘matlab’)
+
+
+
+
+
+## Problem 8
+For the next problem, you will probably want to be able to examine the
+manual pages for common Linux commands. But when we run:
+
+```bash
+man ls
+```
+
+In our Rstudio Docker container, we see the following:
+
+```
+rstudio@2477943eb99a:~/work/lectures/02-unix$ man ls
+This system has been minimized by removing packages and content that are
+not required on a system that users do not log into.
+
+To restore this content, including manpages, you can run the 'unminimize'
+command. You will still need to ensure the 'man-db' package is installed.
+
+
+```
+
+Create a Dockerfile based on `rocker/rstudio` or `rocker/verse` that
+meets these requirements.
+
+Hint: Here is how to use Ubuntu's package manager to install something
+"the right way" in a Docker file:
+
+```bash
+RUN apt update && apt install -y <package-name> && rm -rf /var/lib/apt/lists/*
+```
+
+Hint: `unminimize` requires user interaction when you run it (it asks
+if you actually want to do what the script does and wants you to type
+"y"). We can't interact with programs in a Docker build step, but we
+can use the utility "yes" to generate a 'yes' for us and pipe it into
+`unminimize`.
+A: I have create the Dockerfile and build a image based on it
+## Problem 9
+Write a bash script to compare the "man" pages for the following three
+commands:
+
+1. man
+2. ls
+3. find
+
+The script should print out three lines, each with the command name,
+followed by the number of lines in the man page for that command. The
+lines should be in order by line count, descending.
+
+Pro tips:
+- You can redirect the output of a command to a file with ``>``, e.g.,
+  `echo hi > ./some-file`. But this always deletes the file before
+  writing the input to it. Use ``>>`` to append to the file (add
+  content to the end).
+- Feel free to Google stuff.
+- You will need to use shell expansion, `echo`, `man`, `wc` (word
+  count), and the utility `sort`. By default, `sort` uses lexical
+  sorting on the whole line, but you can use the `-g` switch to enable
+  numerical sorting, the `-k` switch to select a column (by number),
+  the `-r` switch to sort descending, and the `-t` switch to select
+  the delimiter, which is, in our case, a comma.
+
+## Problem 10
+
+Create your project.
+
+This means:
+
+1. pick a folder somewhere
+2. Add a README.md that says "Hi, this is my 611 Data Science
+   Project. More to come." in that directory.
+3. Put the Dockerfile you created above into the directory.
+4. Open up your terminal of choice
+   cd <your-folder>
+   git init
+   git add -A: /
+   git commit -m "First commit."
+5. Go to github, sign up, create a new repository. Follow the
+   instructions for associating that repository with the one in your
+   folder.
+6. Give us a link to the github page for your repo
+
+
