@@ -1,0 +1,12 @@
+Information about my first homework:
+
+Name: Shilin
+Github username: renlyly
+link:https://github.com/renlyly/611project/
+
+File Description
+HW1_611.txt		-- Writing answer for all question in HW1
+Dockerfile 		-- Dockerfile for question 8
+experimental.sh 	-- .sh file for Question 3, 4, 5
+problem9.sh		-- .sh file for Question 9
+
