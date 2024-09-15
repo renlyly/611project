@@ -1,0 +1,187 @@
+611 Homework 2 
+
+Name: Shilin
+Github username: renlyly
+link:https://github.com/renlyly/611project/
+
+
+1.	We have often seen `-it` in invocations of Docker run. This kind of argument, where we have multiple letters after a single dash, is a convention which allows users to specify multiple short command line switches after a single dash. We could equivalently write `-i -t`. Consult the Docker documentation in whatever way you'd like and determine what `-i` and `-t` do.  Look up the history of the abbreviation "tty" and give a very brief (2-3 sentences) about its history and age. Compare this to a rough estimate of the length of time we've been sure that the world is composed of atoms.
+
+A: we can check the Docker document by “Docker run --help”
+Then we have: -i, --interactive Keep STDIN open even if not attached. -t, --tty Allocate a pseudo-TTY
+	
+tty, very brief (2-3 sentences) about its history and age: tty means teletypewriter. Teletypewriter is an electromechanical device used to send and receive typed messages over a network, developed in the late 19th century. the term "tty" has carried over into modern computing to mean a virtual terminal.
+
+Compared: Scientific proof of atomic composition emerged in early 20th centuries with figures like John Dalton and Albert Einstein. Thus, our certainty about atomic composition has existed for about two. They both originated in the same era, though in different fields.
+
+
+2. Consider the R function `local`, used like so:
+z <- local({
+ x<-10;
+ y<-15;
+ x + y;
+})
+Read the documentation on this function. Explain the difference between the above and this:
+z <- {
+ x <- 10;
+ y <- 15;
+ x + y;
+}
+
+A: We need to check the value in the Environment, the first code will drop the local value ‘x’ and ‘y’, so the output is only z=25. In the second codes we x and y were added to the global environment so the output is x=10; y=15; z=25.
+
+
+
+3. Consider:
+list_of_functions <- list();
+for(i in 1:10){
+  list_of_functions <- c(list_of_functions, function() i);
+}
+for(f in list_of_functions){
+  print(f());
+}
+Does the result surprise you? Why or why not? If the result surprised you, explain how to modify the code above such that it does what you expected it to do.
+
+A : list_of_functions is a list with length 10 and the element in the list in function. The output are all 10 from the print process because the functions are all the same with form: function() i
+To modify the code we need: 
+Way A: try output an value instead of a function: 
+list_of_functions <- list();
+for(i in 1:10){
+  list_of_functions[[i]] <- (function() i)();
+}
+for(f in list_of_functions){
+  print(f);
+} 
+
+Way B: change the second ‘for’ loop to read i from 1 to 10: 
+list_of_functions <- list();
+for(i in 1:10){
+  list_of_functions <- c(list_of_functions, function() i);
+}
+for(i in 1:10){
+  print(f());
+}
+
+Way C: change the local value ‘for’ the first loop to read i from 1 to 10: 
+list_of_functions <- list()
+ for(i in 1:10){
+ list_of_functions <- c(list_of_functions, local({ value <- i function() value })) 
+}
+ for(f in list_of_functions){ 
+print(f())
+ }
+
+4. When we define a function and when we write a for loop or while loop we can use a "{}" block to indicate the body of either type of expression. The code inside two blocks can be identical but they nevertheless mean different things. Explain the difference.
+A: The different is: 1. The “{}” in a function will be executing only when we call the function. The “{}” in a loop will be executing immediately until the loop end. 2. We can set and used local value in function, and the local value will be remove when the function finish, but the value in loop are always global value. 3. The last value in the function will always return as an output of the function which is the main purpose, but “{}” loop did not have such output or return value.
+
+5. Implement a function called "with_list" which accepts a list with named values and an expression which should be evaluated in an environment here the named values inside of the list can be referred to as regular variables. That is, it should work like this:
+q <- 7;
+with_list(list(x=10,y=100),{
+  x + y + q;
+});
+# x and y should be undefined here
+Do your best to explain how your implementation works. Test it to make sure it does.
+
+A: To do that we need to set a new local environment in the function: 
+with_list <- function(lst, expr) {
+  env <- new.env(parent = parent.frame()) # local environment 
+  list2env(lst, envir = env) 	# add list value in the environment
+  eval(substitute(expr), envir = env) # evaluate the expression inside the environment. 
+}
+Test:
+
+> q <- 7
+> result <- with_list(list(x = 10, y = 100), {
++   x + y + q
++ })
+> print(result) 
+[1] 117
+> print(exists("x")) 
+[1] FALSE
+> print(exists("y")) 
+[1] FALSE
+
+
+6.
+Consider:
+`%mid%` <- function(a,b) (a + b)/2;
+z <- c(1,2,3) %mid% c(9,9,9)
+z
+What rule do we need to have in our mental model of R to make this work? Why did we have to put `%mid%` in backticks when we defined it? What should z be?
+
+A: The code in problem 6 can be run in R successful. Rule 1: R allows us to define operators like + or *. In R, if a function name is enclosed in % signs, it is interpreted as a binary operator. Rule 2: when we make a new binary operator with%%,we have to use backticks so the R can understand it. 
+
+7. We use a variety of package managers in this class. Briefly describe (a few sentence should suffice) each of the following:
+1. apt
+2. pip
+3. install.packages
+
+A: Basically we used these package managers in Linux, python, and R programming environments separately. I want to used the example in the lecture, If we need to install the ‘matlab’ package in R. we can:
+1.	Open a terminal in R and run: sudo apt update
+
+2.	Assume we have a package called ‘matlab’ in python we can run pip install matlab in python
+
+3.	 In R console run: install.packages(‘matlab’)
+
+8. For the next problem, you will probably want to be able to examine the
+manual pages for common Linux commands. But when we run:
+man ls
+In our Rstudio Docker container, we see the following:
+This system has been minimized by removing packages and content that are
+not required on a system that users do not log into.
+
+To restore this content, including manpages, you can run the 'unminimize'
+command. You will still need to ensure the 'man-db' package is installed.
+Create a Dockerfile based on `rocker/rstudio` or `rocker/verse` that
+meets these requirements.
+Hint: Here is how to use Ubuntu's package manager to install something
+"the right way" in a Docker file:
+RUN apt update && apt install -y <package-name> && rm -rf /var/lib/apt/lists/*
+Hint: `unminimize` requires user interaction when you run it (it asks
+if you actually want to do what the script does and wants you to type
+"y"). We can't interact with programs in a Docker build step, but we
+can use the utility "yes" to generate a 'yes' for us and pipe it into
+`unminimize`.
+A:
+
+
+
+9. Write a bash script to compare the "man" pages for the following three
+commands:
+1. man
+2. ls
+3. find
+The script should print out three lines, each with the command name,
+followed by the number of lines in the man page for that command. The
+lines should be in order by line count, descending.
+Pro tips:
+- You can redirect the output of a command to a file with ``>``, e.g.,
+  `echo hi > ./some-file`. But this always deletes the file before
+  writing the input to it. Use ``>>`` to append to the file (add
+  content to the end).
+- Feel free to Google stuff.
+- You will need to use shell expansion, `echo`, `man`, `wc` (word
+  count), and the utility `sort`. By default, `sort` uses lexical
+  sorting on the whole line, but you can use the `-g` switch to enable
+  numerical sorting, the `-k` switch to select a column (by number),
+  the `-r` switch to sort descending, and the `-t` switch to select
+  the delimiter, which is, in our case, a comma.
+
+
+
+10. Create your project.
+This means:
+1. pick a folder somewhere
+2. Add a README.md that says "Hi, this is my 611 Data Science
+   Project. More to come." in that directory.
+3. Put the Dockerfile you created above into the directory.
+4. Open up your terminal of choice
+   cd <your-folder>
+   git init
+   git add -A: /
+   git commit -m "First commit."
+5. Go to github, sign up, create a new repository. Follow the
+   instructions for associating that repository with the one in your
+   folder.
+6. Give us a link to the github page for your repo
+

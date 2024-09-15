@@ -1,7 +1,4 @@
-*.rda
-*.html
 *.gz
-*.txt
 *.sqlite
 *.Rproj
 .Rproj.user
