@@ -6,3 +6,6 @@
 .Rproj
 *.docx
 *.doc
+*.tmp
+.Rhistory
+*.csv

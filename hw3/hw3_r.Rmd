@@ -1,0 +1,233 @@
+---
+title: "hw3_611"
+author: "Shilin Yu"
+date: "2024-09-18"
+output: html_document
+---
+
+
+Requirement:
+1. Submit this homework as an RMarkdown file and the additional files requested in part 7
+2.We will assume that the data set is located in the same directory as the Rmd file AND that it is the working directory.
+
+```{r initial, echo=FALSE }
+require(tidyverse)
+library(tidyverse)
+# setwd("C:/Users/renly/Documents/GitHub/Dockerfile/hw611/hw3")
+
+data <- readr::read_csv("NYC_Dog_Licensing_Dataset_20240918.csv")
+
+
+```
+
+
+1. Load the data into a tibble data frame and do the following things
+•	print the "problems" data frame.
+•	rename the columns so they are less redundant - we're only working with dogs here so we can use the column names: name, gender, birth_year, breed, zipcode, issue_date, expiration_date and extract_year.
+You can rename columns in a lot of ways but I recommend using the function `rename` or the function `transmute` in this case. Look up the documentation to see how they work. Make sure you are looking at the documentation for the dplyr functions
+•	reduce the data down to the complete cases without getting fancy about it. Make sure print out the row count before and after. You'll want to use the functions sprintf and cat. Both functions documentation will tell you how to use them.
+
+
+```{r Q1, echo=FALSE}
+pr <- problems(data) %>% pull(row)
+problematic_data  <- data %>% filter(row_number() %in% pr)
+
+print(problematic_data) # 1 a print print the "problems" data frame.
+
+data <- data %>%
+  rename(
+    name = AnimalName,      
+    gender = AnimalGender,  
+    birth_year = AnimalBirthYear,  
+    breed = BreedName,       
+    zipcode = ZipCode,    
+    issue_date = LicenseIssuedDate,  
+    expiration_date = LicenseExpiredDate,  
+    extract_year = 'Extract Year'  
+  ) # Rename the columns
+
+# data %>% group_by(AnimalBirthYear) %>% tally()
+
+cc_data <- data %>% filter(complete.cases(.) )
+
+
+cat(sprintf("Before removing incomplete cases there were %d rows and now there are %d rows.\n (%d removed)",
+            nrow(data), nrow(cc_data),
+            nrow(data)-nrow(cc_data)));
+# 1 c: reduce the data down to the complete cases. Print out the row count before and after. You'll want to use the functions sprintf and cat.
+
+```
+
+
+
+
+2. Compare the number of distinct rows to the number of total rows. Print this out. Find the non-distinct rows and display them. In your RMarkdown file make some notes about the duplicate lines.
+
+
+
+```{r Q2, echo=FALSE}
+
+
+# Compare the number of distinct rows to the number of total rows
+disdata  <- cc_data %>% distinct()
+cat(sprintf("Before removing non-distinct rows there were %d rows and now there are %d  distinct rows.\n (%d removed)",
+            nrow(cc_data), nrow(disdata),
+            nrow(cc_data)-nrow(disdata)));
+
+
+# Find the non-distinct rows and display them.
+dupdata  <- cc_data %>% group_by_all() %>%  filter(n()>1) %>% distinct()
+print(dupdata ,n=50)
+
+
+# In your RMarkdown file make some notes about the duplicate lines.
+# I make a note about the dog name for duplicate
+name_d <- dupdata %>% group_by(name) %>%  summarise(n=n()) 
+name_dd <- c(name_d$name)
+# added a column complete data about information on duplicate line
+cc_data <- cc_data %>%
+  group_by_all %>%
+  mutate(is_duplicate = n() > 1) %>%
+  ungroup()
+
+```
+
+
+
+
+3. Use ggplot to graph the number of dogs born on a given year from the start of the data set. Then make a second plot restricted to years with a non-trivial number of dogs.
+```{r Q3, echo=FALSE}
+
+# start of the data set : data
+ggplot(data, aes(birth_year)) + geom_histogram(stat="count") +
+  labs(x="Birth year", y="Dog count", title="Dogs born on a given year")
+ggsave("Q3a.png")
+
+# set count 10 as the therehold 
+minyear <-  data %>% 
+  group_by(birth_year) %>%
+  summarise(count = n(), .groups = 'drop') %>%
+  filter(count > 20) %>%
+  slice(1) %>%
+  pull(birth_year)
+
+
+ggplot(data, aes(birth_year)) + geom_histogram(stat="count") +
+  labs(x="Birth year", y="Dog count",  
+       title="Dogs born on a given year(non-trivial)") +
+  xlim(minyear, NA)
+ggsave("Q3b.png")
+
+
+
+
+```
+
+
+
+
+4. In lab we became aware of the fact that that we can't really identify unique dogs in this data set. The chance of two lines representing the same dog increases, however, if their name, gender, birth year, breed, and zip code are all the same. If we make this assumption, how many unique dogs are in the data set? Produce a filtered data set with unique dogs under the assumption. Print the row count before and after this assumption is enforced.
+
+```{r Q4, echo=FALSE}
+
+disdata2 <-cc_data %>% distinct(name, gender, birth_year, breed, zipcode)
+cat(sprintf("Under the new assumption for the complete dataset, Before removing non-distinct rows there were %d rows and now there are %d  distinct rows.\n (%d removed)",
+            nrow(cc_data), nrow(disdata2),
+            nrow(cc_data)-nrow(disdata2)));
+
+
+```
+
+
+5. Create a new data frame which calculates the total number of dogs born on a give year and put it aside. Then calculate the total number of dogs with a given name on a given year in a second data frame. Do a join between the two and then calculate the rate of each dog name as a function of year. What is the most popular dog name in 1999? In 2024?
+
+A: In my data set not dog birth in 2024 I choose to show dog name in 2023
+```{r Q5, echo=FALSE}
+# I want to remomve the name with "NONE" "UNKNOWN", "NAME NOT PROVIDED", "NAME",".","...","A"
+# I want to used the assumption in Q4 
+disdata3 <- disdata2 %>%
+  filter(!name %in% c("NONE","UNKNOWN", "NAME NOT PROVIDED", "NAME",".","...","A"))
+
+# data1
+data1 <- disdata3 %>%
+  group_by(birth_year) %>%
+  summarise(total_dogs = n(), .groups = 'drop')
+# data2
+data2 <- disdata3 %>%
+  group_by(birth_year, name) %>%
+  summarise(dogs_with_name = n(), .groups = 'drop')
+
+joindata <- data2 %>%
+  left_join(data1, by = "birth_year") %>%
+  mutate(rate = dogs_with_name / total_dogs)
+
+# most popular dog name:
+name_1999 <- joindata %>%
+  filter(birth_year == 1999) %>%
+  arrange(desc(rate)) %>%
+  slice(1) %>% 
+  pull(name)
+
+name_2023 <- joindata %>%
+  filter(birth_year == 2023) %>%
+  arrange(desc(rate)) %>%
+  slice(1) %>% 
+  pull(name)
+
+cat(sprintf("The most popular dog name in 1999 is: %s , and the most popular dog name in 2023 is: %s ",name_1999, name_2023 ) )
+
+
+
+
+```
+
+
+Create a plot showing the rate of the most popular dog name in 1999 over time. Create a second plot showing the popularity of the most popular dog name in 2023. Put both plots on the same figure.
+
+
+
+```{r Q6, echo=FALSE}
+
+
+joindata %>% 
+  filter(name %in% c(name_1999, name_2023)) %>%
+  ggplot(aes(x=birth_year, y=rate, color=name)) +
+  geom_line() + 
+  labs(x="Birth year", y="Rate")
+ggsave("Q6.png")
+
+
+```
+
+
+7. When we do reproducible data scence we separate each step of our analysis into a separate script file which loads what it needs when it starts and saves its results on exit. Split this homework into as many scripts as you feel are appropriate and submit them along with this homework.
+
+A: From different question we used different data: origin data, complete data, distinct data, distinct data under new assumption.
+I don't suggest save too much data set for my Rmd. It waste too many storage and make the question more complicated. I believe 3 scripts is enough 1, generate data and data processing, 2, generate the plots,
+
+readr::write_csv(data,"processdata.csv")
+readr::write_csv(disdata3,"assumpt_dis_data.csv")
+```{make}
+build: Q3a.png Q3b.png Q6.png
+
+clean:
+	rm *.png
+	rm processdata.csv
+	rm assumpt_dis_data.csv
+
+processdata.csv: data_G.R
+	Rscript data_G.R
+
+assumpt_dis_data.csv: data_G.R 
+	Rscript data_G.R
+
+Q3a.png Q3b.png: processdata.csv Plot_G.R
+	Rscript Plot_G.R
+
+Q6.png: assumpt_dis_data.csv Plot_G.R
+	Rscript Plot_G.R
+	
+```
+
+8. Create a makefile for this set of processing steps.
+A: find in github.
