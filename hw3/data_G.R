@@ -1,6 +1,8 @@
 
 #Generate all data set
-require(tidyverse)
+if (!require("tidyverse")) {
+  install.packages("tidyverse", dependencies = TRUE)
+}
 library(tidyverse)
 data <- readr::read_csv("NYC_Dog_Licensing_Dataset_20240918.csv")
 

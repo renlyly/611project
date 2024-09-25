@@ -11,7 +11,9 @@ Requirement:
 2.We will assume that the data set is located in the same directory as the Rmd file AND that it is the working directory.
 
 ```{r initial, echo=FALSE }
-require(tidyverse)
+if (!require("tidyverse")) {
+  install.packages("tidyverse", dependencies = TRUE)
+}
 library(tidyverse)
 # setwd("C:/Users/renly/Documents/GitHub/Dockerfile/hw611/hw3")
 

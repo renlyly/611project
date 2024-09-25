@@ -1,6 +1,7 @@
 # generate all plots
-
-require(tidyverse)
+if (!require("tidyverse")) {
+  install.packages("tidyverse", dependencies = TRUE)
+}
 library(tidyverse)
 data <- readr::read_csv("processdata.csv")
 disdata3 <- readr::read_csv("assumpt_dis_data.csv")
