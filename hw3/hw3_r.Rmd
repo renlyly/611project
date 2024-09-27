@@ -5,10 +5,16 @@ date: "2024-09-18"
 output: html_document
 ---
 
+For the makefile, I upload it in my github:
+https://github.com/renlyly/611project/tree/main/hw3
+
 
 Requirement:
-1. Submit this homework as an RMarkdown file and the additional files requested in part 7
+1. Submit this homework as an RMarkdown file and the additional files requested in part 7 (summit in canvas)
 2.We will assume that the data set is located in the same directory as the Rmd file AND that it is the working directory.
+
+
+
 
 ```{r initial, echo=FALSE }
 if (!require("tidyverse")) {
