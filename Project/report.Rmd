@@ -1,0 +1,22 @@
+---
+title: "Report"
+author: "Shilin Yu"
+date: "2024-10-10"
+output: html_document
+---
+
+
+
+
+
+Some test
+```{r dataprocess, echo=FALSE}
+set.seed(123)  
+data <- sample(1:10, 5)
+barplot(data, main = "Sample Data Barplot", xlab = "Index", ylab = "Value")
+summary(data)
+mean(data)
+sd(data)
+
+```
+
