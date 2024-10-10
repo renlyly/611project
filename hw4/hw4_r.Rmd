@@ -1,0 +1,87 @@
+---
+title: "hw4_611"
+author: "Shilin Yu"
+date: "2024-10-08"
+output: html_document
+---
+
+
+
+
+
+
+```{r Q1, echo=FALSE}
+library(tidyverse)
+
+
+```
+
+
+
+```{r Q1, echo=FALSE}
+
+# need: data, K
+# return:
+my_kmeans <- function(data, k, eps =1e-6){
+
+  cluster_labels <- sample(1:k, nrow(data), replace = T); 
+  
+ 
+  data_mat <- data %>% as.matrix();
+ centriods <- c()
+  for( i in k){
+    submat <- data_mat[i==cluster_labels,]
+    centriod <- colSums(submat)/nrow(submat)
+    centriods <-rbind(centriods,centriod)
+  }
+ old_centriods <-centriods;
+ centriods<- c()
+   for( i in rnow(data_mat)){
+     row=data_mat[i,]
+     min_d= Inf;
+     mid_j=0;
+     for(j in 1:k){
+       d= sqrt(sum((row-centriods[j,])*(row-centriods[j,]) ))
+       if(d<min_d){
+         min_d=d;
+         
+       }
+       
+     }
+    submat <- data_mat[i==cluster_labels,]
+    centriod <- colSums(submat)/nrow(submat)
+    centriods <-rbind(centriods,centriod)
+  }
+ 
+ 
+  centriods
+   
+#  centriods <- data %>% 
+#    mutate(ll___ =cluster_labels) %>%
+#    group_by(ll___)  %>%
+#    means()
+  }
+
+data1<- tibble(X1=rnorm(20,mean = 0,sd=1),
+               X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),
+               X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+data2<- tibble(X1=rnorm(20,mean = 0,sd=1),
+               X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),
+               X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+data3<- tibble(X1=rnorm(20,mean = 0,sd=1),
+               X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),
+               X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+
+data <- rbind(data1,data2 ,data3 )
+  
+  my_kmeans(data,k=4)
+  
+
+
+```
