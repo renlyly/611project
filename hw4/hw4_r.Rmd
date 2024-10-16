@@ -1,87 +1,256 @@
 ---
 title: "hw4_611"
 author: "Shilin Yu"
-date: "2024-10-08"
+date: "2024-10-14"
 output: html_document
 ---
 
+This is homework3 4 for BIOS 611
 
+First part of the code is prepared the package and data processing:
 
-
-
-
-```{r Q1, echo=FALSE}
+```{r processing, echo=FALSE}
+if (!requireNamespace("tidyverse", quietly = TRUE)) {
+  install.packages("tidyverse")
+}
 library(tidyverse)
+
+
+if (!requireNamespace("cluster", quietly = TRUE)) {
+  install.packages("cluster")
+}
+library(cluster)
+
+if (!requireNamespace("entropy", quietly = TRUE)) {
+  install.packages("entropy")
+}
+library(entropy)
+
+if (!requireNamespace("MASS", quietly = TRUE)) {
+  install.packages("MASS")
+}
+library(MASS) 
+
+
+if (!requireNamespace("factoextra", quietly = TRUE)) {
+  install.packages("factoextra")
+}
+library(factoextra) 
 
 
 ```
 
+1. Implement K-Means in R. You'll need to provide a function that accepts a matrix of vectors, a number of clusters, and returns an array of integer labels corresponding to each row of the input matrix.
 
 
 ```{r Q1, echo=FALSE}
-
 # need: data, K
 # return:
-my_kmeans <- function(data, k, eps =1e-6){
+data1<- tibble(X1=rnorm(20,mean = 0,sd=1),X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+data2<- tibble(X1=rnorm(20,mean = 0,sd=1),X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+data3<- tibble(X1=rnorm(20,mean = 0,sd=1),X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+data4<- tibble(X1=rnorm(20,mean = 0,sd=1),X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
+data5<- tibble(X1=rnorm(20,mean = 0,sd=1),X2=rnorm(20,mean = 0,sd=1),
+               X3=rnorm(20,mean = 0,sd=1),X4=rnorm(20,mean = 0,sd=1),
+               X5=rnorm(20,mean = 0,sd=1))
 
-  cluster_labels <- sample(1:k, nrow(data), replace = T); 
+data1 <- rbind(data1,data2 ,data3,data4, data5 )
+
+
+my_kmeans <- function(data, k, eps =1e-5){
   
- 
-  data_mat <- data %>% as.matrix();
- centriods <- c()
-  for( i in k){
+rr=dim(data)[1]
+cc=dim(data)[2]
+cluster_labels <- sample(1:k, rr, replace = T);
+data_mat <- data %>% as.matrix();
+centriods <- c()
+for( i in 1:k){
     submat <- data_mat[i==cluster_labels,]
     centriod <- colSums(submat)/nrow(submat)
     centriods <-rbind(centriods,centriod)
   }
- old_centriods <-centriods;
- centriods<- c()
-   for( i in rnow(data_mat)){
+
+itt<-0
+ while(T){
+  itt<-itt+1;
+   old_centriods <-centriods; 
+    for( i in 1:nrow(data_mat)){
      row=data_mat[i,]
      min_d= Inf;
      mid_j=0;
      for(j in 1:k){
        d= sqrt(sum((row-centriods[j,])*(row-centriods[j,]) ))
+    #   cat(sprintf("d between %d %d is %f\n",i,j,d))
        if(d<min_d){
-         min_d=d;
-         
+         min_d <- d;
+         min_j <- j;
        }
-       
      }
+     cluster_labels[i] <-min_j
+    }
+       centriods<- c();
+   for( i in 1:k){
     submat <- data_mat[i==cluster_labels,]
     centriod <- colSums(submat)/nrow(submat)
     centriods <-rbind(centriods,centriod)
-  }
- 
- 
-  centriods
-   
-#  centriods <- data %>% 
-#    mutate(ll___ =cluster_labels) %>%
-#    group_by(ll___)  %>%
-#    means()
-  }
+   }
+  centriod_diff <- old_centriods - centriods; 
+  centriod_distance <- mean(rowSums(centriod_diff*centriod_diff)) 
+   cat(sprintf("Iteration %d centroids differences %f.\n",itt,centriod_distance))
+   if(centriod_distance < eps){
+     break
+   }
+ }
+cluster_labels
+}
 
-data1<- tibble(X1=rnorm(20,mean = 0,sd=1),
-               X2=rnorm(20,mean = 0,sd=1),
-               X3=rnorm(20,mean = 0,sd=1),
-               X4=rnorm(20,mean = 0,sd=1),
-               X5=rnorm(20,mean = 0,sd=1))
-data2<- tibble(X1=rnorm(20,mean = 0,sd=1),
-               X2=rnorm(20,mean = 0,sd=1),
-               X3=rnorm(20,mean = 0,sd=1),
-               X4=rnorm(20,mean = 0,sd=1),
-               X5=rnorm(20,mean = 0,sd=1))
-data3<- tibble(X1=rnorm(20,mean = 0,sd=1),
-               X2=rnorm(20,mean = 0,sd=1),
-               X3=rnorm(20,mean = 0,sd=1),
-               X4=rnorm(20,mean = 0,sd=1),
-               X5=rnorm(20,mean = 0,sd=1))
+my_kmeans(data1,k=4)
 
-data <- rbind(data1,data2 ,data3 )
+
+```
+
+2. Create a data set in five dimensions which contains 100 points sampled from 5 normal distributions with a uniform standard deviation of 1. These distributions should be centered at
+
+5,0,0,0,0
+
+-5,0,0,0,0
+
+0,0,0,3,0
+
+0,0,0,-2,0
+
+4,0,0,-3,0
+
+```{r Q2, echo=FALSE}
+data21<- tibble(X1=rnorm(100,mean = 5,sd=1),X2=rnorm(100,mean = 0,sd=1),
+               X3=rnorm(100,mean = 0,sd=1),X4=rnorm(100,mean = 0,sd=1),
+               X5=rnorm(100,mean = 0,sd=1))
+data22<- tibble(X1=rnorm(100,mean = -5,sd=1),X2=rnorm(100,mean = 0,sd=1),
+               X3=rnorm(100,mean = 0,sd=1),X4=rnorm(100,mean = 0,sd=1),
+               X5=rnorm(100,mean = 0,sd=1))
+data23<- tibble(X1=rnorm(100,mean = 0,sd=1),X2=rnorm(100,mean = 0,sd=1),
+               X3=rnorm(100,mean = 0,sd=1),X4=rnorm(100,mean = 3,sd=1),
+               X5=rnorm(100,mean = 0,sd=1))
+data24<- tibble(X1=rnorm(100,mean = 0,sd=1),X2=rnorm(100,mean = 0,sd=1),
+               X3=rnorm(100,mean = 0,sd=1),X4=rnorm(100,mean = -2,sd=1),
+               X5=rnorm(100,mean = 0,sd=1))
+data25<- tibble(X1=rnorm(100,mean = 4,sd=1),X2=rnorm(100,mean = 0,sd=1),
+               X3=rnorm(100,mean = 0,sd=1),X4=rnorm(100,mean = -3,sd=1),
+               X5=rnorm(100,mean = 0,sd=1))
+
+data_2 <- rbind(data21,data22 ,data23,data24, data25 )
+
+
+```
+
+
+3. apply your k-means algorithm and the built in k-means to the data set and compare the clusterings using the mutual information. Do they make sense? Use k=5 for the number of clusters.
+
+
+A: my k-means provide similar results with built in k-means to the data set. The mutual information value is 1.3, which means that there is high common information between my K-Means clustering and the built-in K-Means clustering results, but they are not exactly the same.
+
+```{r Q3, echo=FALSE}
+set.seed(111)
+kmean_my <- my_kmeans(as.matrix(data_2), 5)
+labels_my <- kmean_my
+
+kmeans_in <- kmeans(as.matrix(data_2), centers = 5)
+labels_in <- kmeans_in$cluster
+
+mutual_info <- function(labels1, labels2) {
+  joint_table <- table(labels1, labels2)
+  mi <- entropy::mi.empirical(joint_table)
+  return(round(mi,1))
+}
+
+mi_value <- mutual_info(labels_my, labels_in)
+print(paste("Mutual Information between custom and built-in K-Means: ", mi_value))
+
+
+
+```
+
+
+4. Do PCA on the synthetic data set you created and show the first two principal components as a 2d scatter plot. Color code the points with your clustering. I've constructed your synthetic data set so that PCA is appropriate here. Explain how.
+
+A: we use PCA projects five-dimensional data into a two-dimensional space, where we select PC1 and PC2. The data comes from five very different distributions, and the differences in the data can be explained by the main components.
+
+
+```{r Q4, echo=FALSE}
+results <- prcomp(data_2 %>% as.matrix())
   
-  my_kmeans(data,k=4)
+pcd<- results$x %>% as_tibble() %>% mutate (label=my_kmeans(data_2,k=5))
+ggplot(pcd, aes(PC1, PC2)) +geom_point(aes(color=factor(label)))
+
+ggsave("Q3.png")
   
 
 
 ```
+
+
+5. Write a for loop for a variable r between 0 and 2 in say 4 steps. Generate a synthetic data set for each iteration of R with centroids:
+
+ 
+
+r*c(5,0,0,0,0)
+
+r*(-5,0,0,0,0)
+
+r*c(0,0,0,3,0)
+
+r*c(0,0,0,-2,0)
+
+r*c(4,0,0,-3,0)
+
+We know there are five clusters here but as r heads towards zero all of them bunch up in the middle. Use the gap statistic to get an estimate for the number of clusters for each value of r. Does it behave the way you'd expect?
+
+A: Yes, when r get small, the estimate for the number of clusters get smaller. I set r= (0.5, 1, 1.5, 2). The cluster number is (3, 4, 5, 5)
+
+
+
+```{r Q5, echo=FALSE}
+
+set.seed(222) 
+r_values <- seq(0.5, 2, length.out = 4)
+
+for (r in r_values) {
+  centers <- list(
+    r * c(5, 0, 0, 0, 0),
+    r * c(-5, 0, 0, 0, 0),
+    r * c(0, 0, 0, 3, 0),
+    r * c(0, 0, 0, -2, 0),
+    r * c(4, 0, 0, -3, 0)
+  )
+  data_5 <- map_dfr(centers, ~ as_tibble(mvrnorm(n = 100, mu = ., Sigma = diag(1, 5) ) ) )
+
+  gap_stat <- cluster::clusGap(as.matrix(data_5), FUN = kmeans, K.max = 10, B = 50)
+    best_k <- maxSE(gap_stat$Tab[, "gap"], gap_stat$Tab[, "SE.sim"], method = "firstmax")
+  print(paste("Estimated number of clusters for r =", r, "is", best_k))
+}
+ # print(gap_stat)
+ # fviz_gap_stat(gap_stat)
+
+
+#  plot(gap_stat)
+# print(results, methods="globalmax")
+# print(results, methods="Tibs2011SEmax")
+
+
+  
+
+
+```
+
+
+
+
+
