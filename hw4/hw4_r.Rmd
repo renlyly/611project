@@ -5,7 +5,8 @@ date: "2024-10-14"
 output: html_document
 ---
 
-This is homework3 4 for BIOS 611
+This is homework4 for BIOS 611
+Github: https://github.com/renlyly/611project/tree/main/hw4 
 
 First part of the code is prepared the package and data processing:
 
