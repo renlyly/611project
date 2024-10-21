@@ -42,7 +42,7 @@ library(factoextra)
 
 1. Implement K-Means in R. You'll need to provide a function that accepts a matrix of vectors, a number of clusters, and returns an array of integer labels corresponding to each row of the input matrix.
 
-
+A: I also included the test data to test the kmean function
 ```{r Q1, echo=FALSE}
 # need: data, K
 # return:
@@ -128,6 +128,9 @@ my_kmeans(data1,k=4)
 0,0,0,-2,0
 
 4,0,0,-3,0
+
+
+A: I used the most basic way to generate the data.
 
 ```{r Q2, echo=FALSE}
 data21<- tibble(X1=rnorm(100,mean = 5,sd=1),X2=rnorm(100,mean = 0,sd=1),
@@ -236,9 +239,6 @@ for (r in r_values) {
     best_k <- maxSE(gap_stat$Tab[, "gap"], gap_stat$Tab[, "SE.sim"], method = "firstmax")
   print(paste("Estimated number of clusters for r =", r, "is", best_k))
 }
- # print(gap_stat)
- # fviz_gap_stat(gap_stat)
-
 
 #  plot(gap_stat)
 # print(results, methods="globalmax")
