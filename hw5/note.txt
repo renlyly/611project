@@ -1,0 +1,19 @@
+a. explain this code to me, one function at a time.
+
+b. configure you docker container to run this code
+
+c. run it - now you have the data
+
+2. Visualize this data by
+
+a. showing a histogram of the word counts over the entire ouvre from largest to smallest or to some appropriate small number
+
+b. plot reduced dimensionality version of this data set (eg, PCA)
+
+c. color code the data points by find for each vector the character name which occurs most often (picard, riker, data, troi, worf, crusher) and provide insightful commentary if possible.
+
+3. cluster the data set. Maybe choose a number of clusters equal to the above list of characters. Visualize the results by color coding the 2d data from problem 2 on a scatter plot.
+
+4. use adaboost (gbm) to attempt to build a classifier that detects the season of the episode. Describe which words are most useful for determining the season. How well does the classifier work? For simplicity's sake, make another classifier which predicts whether the episode is from the first or second half of the show's run. Plot the ROC curve and give the Area under said.
+
+5. Load the data into a pandas data frame. Count the rows. Calculate the row sum for the data set's numerical columns. Remove rows with less than 100 total counts. Write the data back out.

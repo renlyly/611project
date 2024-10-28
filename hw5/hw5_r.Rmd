@@ -1,0 +1,322 @@
+---
+title: "hw5_611"
+author: "Shilin Yu"
+date: "2024-10-27"
+output: html_document
+---
+
+This is homework5 for BIOS 611
+Github: https://github.com/renlyly/611project/tree/main/hw5 
+Topic: Star Trek Data
+
+
+
+
+First part of the code is prepared the package and data processing:
+
+```{r processing, echo=FALSE}
+if (!requireNamespace("reticulate", quietly = TRUE)) {
+  install.packages("reticulate")
+}
+library(reticulate)
+
+if (!requireNamespace("tidyverse", quietly = TRUE)) {
+  install.packages("tidyverse")
+}
+library(tidyverse)
+
+if (!requireNamespace("cluster", quietly = TRUE)) {
+  install.packages("cluster")
+}
+library(cluster)
+
+if (!requireNamespace("gbm", quietly = TRUE)) {
+  install.packages("gbm")
+}
+library(gbm)
+
+if (!requireNamespace("pROC", quietly = TRUE)) {
+  install.packages("pROC")
+}
+
+library(pROC)
+
+data=read_csv("episode_word_counts.csv")
+
+
+
+```
+
+1. a. explain this code to me, one function at a time.
+A:
+(i)The first part "import" are the code to import the packages we need
+
+(ii)nltk.download('punkt')
+nltk.download('stopwords')
+Downloads stopwords and tokenizer data from nltk resources.
+
+(iii)stop_words = set(stopwords.words('english'))
+Set of English stopwords
+
+(iv)CACHE_DIR   os.makedirs(CACHE_DIR)
+Create the cache directory if it doesn't exist
+
+(v) md5_hash(url)  hashlib.md5(url.encode()).hexdigest()
+Generates the MD5 hash of a URL. I
+
+(vi)cache_path(url) os.path.join(CACHE_DIR, md5_hash(url))
+Determines the file path for caching a given URL using its MD5 hash to avoid saving multiple times.
+
+(vii)fetch_raw(url)
+headers 
+Header configuration for HTTP requests
+
+time.sleep: # Random delay to avoid hammering the server
+
+requests.get(url, headers=headers)
+Used to initiate an HTTP GET request to the specified URL
+
+
+(viii) fetch(url):Wrapper function that implements caching around the raw fetch.
+
+os.path.exists(cache_file):This line of code is used to check whether cache_file exists
+
+file.write: is a method in Python for writing content to a file
+
+BS(page_content, "html.parser"): returns a BeautifulSoup object, which is used to parse web page content, allowing you to easily extract and process HTML documents.
+
+(ix)episode_list_urls(): """Fetches URLs of episodes from the main episode list page."""
+
+bs.find_all("tbody") This code uses the method provided by BeautifulSoup to find a list of all <tbody> tags in the HTML document.
+
+for anchor in tb.find_all("a"): loops through each <a> tag, anchor represents each <a> tag currently found.
+
+(x)   text = text.translate(str.maketrans("", "", string.punctuation)).lower(): To process text data by removing punctuation and converting all letters to lowercase.
+
+tokens = nltk.word_tokenize(text): Tokenize the text
+
+filtered_tokens = [word for word in tokens if word not in stop_words] : Remove stop words
+
+word_counts = Counter(filtered_tokens): Count the word frequencies
+
+(xi)def get_text_of_episodes():Fetches and returns an array of objects with episode URLs and their text.
+
+(xii)def get_word_counts_for_episodes(episodes):Takes an array of episode objects and calculates word frequencies
+
+(xiii)def get_total_word_count(episode_word_counts):Calculates the total word count across all episodes.
+
+(xiv)def convert_to_word_count_vectors: Converts word counts for each episode into a vector
+
+(xv)def write_word_counts_to_csv: Writes the episode word count vectors to a CSV file.
+
+
+b. configure you docker container to run this code
+A:See Dockfile in github.
+
+c. run it - now you have the data
+A:See data file in github
+
+
+
+2. Visualize this data by
+
+a. showing a histogram of the word counts over the entire ouvre from largest to smallest or to some appropriate small number
+
+b. plot reduced dimensionality version of this data set (eg, PCA)
+
+c. color code the data points by find for each vector the character name which occurs most often (picard, riker, data, troi, worf, crusher) and provide insightful commentary if possible.
+
+
+
+
+```{r Q2, echo=FALSE}
+# a
+print("part a")
+l <- data %>% pivot_longer(cols = captains:devron) %>%
+  group_by(name) %>%
+  summarise(total = sum(value));
+
+l <- l %>% mutate(name =    factor(name, levels = l %>% arrange(desc(total)) %>% pull(name)))
+
+ggplot(l, aes(name,total)) + geom_col()+
+  labs(title = "Total Word Counts by Name (Sorted from Largest to Smallest)")
+
+ggplot(l %>% filter(total>1000), aes(name,total)) + geom_col()+
+  labs(title = "Total Word Counts by Name (Sorted from Largest to 1000)") +theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+ggsave("Q1a.png")
+
+
+# b
+print("part b")
+
+results <- data %>% select(-'Episode URL') %>% as.matrix() %>% prcomp()
+
+pcd<- results$x %>% as_tibble()
+ggplot(pcd, aes(PC1, PC2)) +geom_point() +theme_bw()
+
+ggsave("Q1b.png")
+
+# c
+print("part c")
+
+character_columns<-colnames(data)
+test <- data %>%
+  select(all_of(colnames(data))) %>%
+  apply(1, function(row) character_columns[which.max(row)])
+
+ggplot(pcd, aes(x = PC1, y = PC2, color = test)) +
+  geom_point() +
+  theme_bw() +
+  labs(title = "PCA of Dataset (Dominant Character)",
+       x = "Principal Component 1",
+       y = "Principal Component 2") 
+
+ggsave("Q1c.png")
+
+
+```
+
+
+
+
+3. Cluster the data set. Maybe choose a number of clusters equal to the above list of characters. Visualize the results by color coding the 2d data from problem 2 on a scatter plot.
+
+A: We choose number 7 because we have seven season. Cluster results is below:
+
+
+```{r Q3, echo=FALSE}
+set.seed(12345)  
+
+k <- 7
+kmeans_result <- kmeans(pcd[, 1:2], centers = k, nstart = 25)
+
+pcd$cluster <- as.factor(kmeans_result$cluster)
+
+ggplot(pcd, aes(x = PC1, y = PC2, color = cluster)) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "PCA Plot with K-means Clustering",
+       x = "PC1",
+       y = "PC2",
+       color = "Cluster") 
+ggsave("Q3.png")
+
+```
+
+
+4. Use adaboost (gbm) to attempt to build a classifier that detects the season of the episode. Describe which words are most useful for determining the season. How well does the classifier work? For simplicity's sake, make another classifier which predicts whether the episode is from the first or second half of the show's run. Plot the ROC curve and give the Area under said.
+
+A: We have seven season. From the website we know 101-126 belongs to Season one, 127-149 belongs to Season two, 150-174 belongs to Season Three, 175-200 belongs to Season Four, 201-226 belongs to Season Five, 227-252 belongs to Season Six, 253-277 belongs to Season Seven. We choose the first 4 as first half and last three(start with 201) as the second half. 
+
+
+
+```{r Q4, echo=FALSE}
+# data process
+extract_episode_number <- function(url) {
+  as.numeric(str_extract(url, "\\d+"))
+}
+
+extracted_info <- data %>%
+  mutate(Episode_Number = sapply(`Episode URL`, extract_episode_number),
+         Season = case_when(
+           Episode_Number >= 101 & Episode_Number <= 126 ~ 1,
+           Episode_Number >= 127 & Episode_Number <= 149 ~ 2,
+           Episode_Number >= 150 & Episode_Number <= 174 ~ 3,
+           Episode_Number >= 175 & Episode_Number <= 200 ~ 4,
+           Episode_Number >= 201 & Episode_Number <= 226 ~ 5,
+           Episode_Number >= 227 & Episode_Number <= 252 ~ 6,
+           Episode_Number >= 253 & Episode_Number <= 277 ~ 7,
+           TRUE ~ NA_real_
+         ),
+         Half = case_when(
+           Season %in% c(1, 2, 3, 4) ~ 0,
+           Season %in% c(5, 6, 7) ~ 1,
+           TRUE ~ NA_real_
+         )) %>%
+  select(`Episode URL`,Episode_Number, Season, Half)
+
+# train model
+set.seed(12345)
+trainIndex <- sample(seq_len(nrow(extracted_info)), size = floor(0.8 * nrow(extracted_info)))
+
+trainData <- data[trainIndex, ]
+testData <- data[-trainIndex, ]
+
+constant_vars <- sapply(trainData, function(x) length(unique(x)) == 1)
+trainData <- trainData[, !constant_vars]
+
+
+
+gbm1<-gbm(extracted_info$Season[trainIndex] ~ . , data = trainData[,-1], distribution = "multinomial", n.trees = 900, interaction.depth = 3, shrinkage = 0.01, verbose = FALSE,cv.folds = 5)
+gbm2<-gbm(extracted_info$Half[trainIndex] ~ . , data = trainData[,-1], distribution = "bernoulli", n.trees = 500, interaction.depth = 3, shrinkage = 0.01, verbose = FALSE,cv.folds = 5)
+
+best_iter<-gbm.perf(gbm1, method = "cv")
+best_iter2<-gbm.perf(gbm2, method = "cv")
+
+sum1<-summary(gbm1, n.trees = best_iter, plotit = FALSE)
+sum2<-summary(gbm2, n.trees = best_iter2, plotit = FALSE)
+
+top_5_words1 <- head(sum1, 5)
+top_5_words2 <- head(sum2, 5)
+
+
+cat("The five most useful words for determining the season are:", paste(top_5_words1$var, collapse = ", "), "\n")
+cat("The five most useful words for determining the First or second half are", paste(top_5_words2$var, collapse = ", "), "\n")
+
+
+# Make predictions
+predictions <- predict(gbm2, newdata = testData, n.trees = best_iter, type = "response")
+
+
+roc_curve <- roc(extracted_info$Half[-trainIndex], predictions)
+
+plot(roc_curve, col = "blue", lwd = 2, print.thres="best",
+     main = "ROC Curve for First vs. Second Half Classifier")
+auc_value <- auc(roc_curve)
+print(paste("AUC:", auc_value))
+
+
+
+```
+
+
+5. Load the data into a pandas data frame. Count the rows. Calculate the row sum for the data set's numerical columns. Remove rows with less than 100 total counts. Write the data back out.
+
+A: I try this problem but all of the row have more than 1000 row, the filtered data remain the same. I prefer to do this problem with Remove rows with less than 2000 total counts
+
+
+```{rQ5, echo=FALSE}
+reticulate::use_python('C:\\Users\\renly\\anaconda3\\python.exe')
+
+```
+
+```{python}
+import pandas as pd
+
+data = pd.read_csv('episode_word_counts.csv')
+row_count = len(data)
+print(f"Total number of rows: {row_count}")
+
+
+numeric_cols = data.select_dtypes(include='number')
+data['row_sum'] = numeric_cols.sum(axis=1)
+
+filtered_data = data[data['row_sum'] >= 2000]
+
+filtered_data = filtered_data.drop(columns=['row_sum'])
+
+filtered_data.to_csv('filtered_episode_word_counts.csv', index=False)
+
+print(f"Filtered data saved. Total number of rows after filtering: {len(filtered_data)}")
+
+
+
+```
+
+```appendix
+<!-- >>> import sys -->
+<!-- >>> sys.executable -->
+<!-- 'C:\\Users\\renly\\AppData\\Local\\Programs\\Python\\Python313\\python.exe' -->
+
+```
+
