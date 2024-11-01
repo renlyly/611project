@@ -235,12 +235,25 @@ extracted_info <- data %>%
          )) %>%
   select(`Episode URL`,Episode_Number, Season, Half)
 
+
+
 # train model
 set.seed(12345)
 trainIndex <- sample(seq_len(nrow(extracted_info)), size = floor(0.8 * nrow(extracted_info)))
+pcs <- results$x %>% as_tibble() %>% 
+  mutate(across(PC71:PC176, ~ 0)) %>% as.matrix()
+truncated_stds <- results$rotation %*% pcs %>% t() %>% as_tibble() %>%
+  summarise(across(captains:devron, sd)) %>%
+  pivot_longer(captains:devron) %>% 
+  arrange(desc(value)) %>%
+  rename(std=value) %>%
+  mutate(name = factor(name, name)) %>% 
+  mutate(rank=1:nrow(.)) %>%
+  mutate(type="truncated")
 
-trainData <- data[trainIndex, ]
-testData <- data[-trainIndex, ]
+
+trainData <- data[trainIndex, truncated_stds %>% mutate(type="truncated") %>% filter(type=="truncated" & rank <= 70) %>% pull(name)]
+testData <- data[-trainIndex, truncated_stds %>% mutate(type="truncated") %>% filter(type=="truncated" & rank <= 70) %>% pull(name)]
 
 constant_vars <- sapply(trainData, function(x) length(unique(x)) == 1)
 trainData <- trainData[, !constant_vars]
@@ -282,10 +295,10 @@ print(paste("AUC:", auc_value))
 
 5. Load the data into a pandas data frame. Count the rows. Calculate the row sum for the data set's numerical columns. Remove rows with less than 100 total counts. Write the data back out.
 
-A: I try this problem but all of the row have more than 1000 row, the filtered data remain the same. I prefer to do this problem with Remove rows with less than 2000 total counts
+A: All of the row have more than 1000 count.
 
 
-```{rQ5, echo=FALSE}
+```{r Q5, echo=FALSE}
 reticulate::use_python('C:\\Users\\renly\\anaconda3\\python.exe')
 
 ```
@@ -297,17 +310,10 @@ data = pd.read_csv('episode_word_counts.csv')
 row_count = len(data)
 print(f"Total number of rows: {row_count}")
 
+data[data.iloc[:,1:].sum(axis=1) >= 100].to_csv("filtered_episode_word_counts.csv", index=False)
 
-numeric_cols = data.select_dtypes(include='number')
-data['row_sum'] = numeric_cols.sum(axis=1)
 
-filtered_data = data[data['row_sum'] >= 2000]
 
-filtered_data = filtered_data.drop(columns=['row_sum'])
-
-filtered_data.to_csv('filtered_episode_word_counts.csv', index=False)
-
-print(f"Filtered data saved. Total number of rows after filtering: {len(filtered_data)}")
 
 
 
@@ -317,6 +323,7 @@ print(f"Filtered data saved. Total number of rows after filtering: {len(filtered
 <!-- >>> import sys -->
 <!-- >>> sys.executable -->
 <!-- 'C:\\Users\\renly\\AppData\\Local\\Programs\\Python\\Python313\\python.exe' -->
+
 
 ```
 

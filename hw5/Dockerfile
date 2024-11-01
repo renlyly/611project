@@ -1,11 +1,7 @@
-FROM python:3.8-slim
-WORKDIR /app
-COPY . /app
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    curl \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-    RUN pip install --no-cache-dir requests beautifulsoup4 nltk
-RUN python -m nltk.downloader punkt stopwords
-CMD ["python"]
+FROM rocker/rstudio
+
+RUN apt update -y && apt install -y python3-pip
+RUN pip3 install jupyter jupyterlab requests bs4 nltk
+RUN python -c "import nltk; nltk.download('punkt_tab')"
+
+RUN R -e "install.packages(c('gbm', 'pROC','tidyverse','cluster'))"
