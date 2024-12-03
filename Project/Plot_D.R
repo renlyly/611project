@@ -1,6 +1,6 @@
 # Shilin
 
-# This is the code for corr plot
+# This is the code for reg plot
 # focus on prop2 and cell type proportion
 #explore the correction between cell-type proportion
 
@@ -45,7 +45,9 @@ axis(side=1, at=xtick, labels = FALSE)
 lab =c("0","6" ,"12","18 ","24") # label
 text(x=xtick, y=-0.03,par("usr")[3], labels = lab, srt = 0, pos = 1,xpd=T,cex = 2)
 lines(lowess(combined_data[1:5,]$visit_month,combined_data[1:5,]$prop2_CD4),col=c2)
-legend(18,0.73,legend=c('Case','Control'),col=c('hotpink','dodgerblue'),lty=1,bty="n",cex=1.5,lwd=2.5)
+legend(18,0.5,legend=c('Case','Control'),col=c('hotpink','dodgerblue'),lty=1,bty="n",cex=0.8,lwd=2.5)
+#legend(locator(1), legend=c('Case', 'Control'), col=c('hotpink', 'dodgerblue'), lty=1, bty="n", cex=1.5, lwd=2.5)
+
 for(i in 2:length(subject_name)){
   nm = subject_name[i]
   idx= which(combined_data$participant_id==nm)

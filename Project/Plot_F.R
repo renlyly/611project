@@ -67,3 +67,16 @@ fviz_pca_ind(pca_result2,
   theme_minimal()
 
 dev.off()
+
+
+jpeg(filename = "PCA_plot3.jpg", width = 8, height = 6, units = "in", res = 300)
+
+fviz_pca_ind(pca_result,
+             geom.ind = "point",   
+             col.ind = as.factor(data_for_pca$raceWhite),  
+             palette = c("#00AFBB", "#E7B800"),  
+             addEllipses = FALSE,   
+             legend.title = "White") + labs(title = "PCA-by-White") + 
+  theme_minimal()
+
+dev.off()

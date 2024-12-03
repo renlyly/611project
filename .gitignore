@@ -6,5 +6,6 @@
 .Rproj
 *.docx
 *.doc
+*.txt
 *.tmp
 .Rhistory

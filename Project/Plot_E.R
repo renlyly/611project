@@ -1,3 +1,8 @@
+# E 
+
+# Shilin Yu
+# Plot_E.R
+# ROC plot
 
 library(tidyverse)
 library(pROC)
@@ -13,7 +18,7 @@ ci_lower <- ci_auc[1]
 ci_upper <- ci_auc[3]
 
 
-jpeg(filename = "ROC_CD8.jdg", width = 5.2, height = 5, units = "in", res = 300)
+jpeg(filename = "ROC_CD8.jpg", width = 5.2, height = 5, units = "in", res = 300)
 
 plot(1 - roc_obj$specificities, roc_obj$sensitivities, type = 'l', 
      main = "", xlab = "1 - Specificity", ylab = "Sensitivity", cex.axis = 1.3, cex.lab = 1.5,

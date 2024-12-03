@@ -1,37 +1,62 @@
-# 611 Project
-Hi, this is the 611 Data Science Project
-Author: Shilin Yu
+Cell type proportion on Parkinson’s disease.
+=============================================
+Author: Shilin Yu, student at UNC Gillings.
 
+# Description
 
-# Data Description
+This project analyzes a dataset of demographics and cell type proportions associated with Parkinson's disease based on processed data from the [PDBP study](https://amp-pd.org/). Cell type proportions were calculated using a deconvolution algorithm while excluding RNA sequencing data. 
+The report displays some findings from the data along with some descriptive analysis and Principal component analysis (PCA).
 
-1. Overview of the Data
-This project utilizes a dataset that includes RNA-seq data, demographic, and clinical information from the Parkinson’s Disease Biomarker Program (PDBP), collected across multiple U.S. medical centers from November 2012 to August 2018. The dataset is split into two main parts:
+# Using This Repository
 
-Cell Type Proportions: Contains columns representing the proportions of various cell types such as B cells, CD4 and CD8 T cells, Monocytes, NK cells, and other miscellaneous cell types.
-Metadata: Includes participant and sample identifiers, along with several demographic and clinical variables like visit month, case/control status, age at baseline, sex, ethnicity, race, education level, tobacco/alcohol use, and caffeine consumption.
-2. Key Points of Interest
-Here are five interesting aspects of the dataset:
+## Build the envrionment: Docker
+This repository is desgin for using with Docker, but you can also review the Dockerfile to understand the appropriate package and Interpreter requirements for running the code. In order to run the Dockerfile, we should build the Docker image first through [Docker Desktop](https://www.docker.com).  A Docker image is similar to a miniaturized virtual machine that is built for easy duplication and can run on most computers. 
 
-a) The PDBP data were collected longitudinally over time for each subject, allowing for the tracking of changes in cell type composition and disease progression across multiple visits.
+```
+docker build -t my_image_name .
+```
 
-b) Different classification models can be applied to the data to analyze performance, particularly when case-control status is masked.
+To build a docker container, Dockerfile needs to be built into an image first, and then use this image to start the container. Use the following command to build the image -t my_image_name: The -t flag is used to name the image (e.g. my_image_name) for easy reference in subsequent operations. '.': Indicates that the Dockerfile is in the current directory. :
 
-c) Visualizations are included that show the correlation between cell type proportions, providing insights into immune cell dynamics in the context of Parkinson’s disease.
+After the image is built, you can use the docker run command to run the container, You can visit http://localhost:8787 via a browser on your machine to access the working space. We can also use port 8888 as an alternative:
 
-d) Another set of visualizations illustrates the relationship between demographic factors (such as age, sex, and ethnicity) and case/control status.
+```
+docker run -v $(pwd):/workspace/myproject \
+           -p 8787:8787 \
+           -p 8888:8888 \
+           -e PASSWORD="$(cat .password)" \
+           -it my_image_name /bin/bash
+```
 
-e) A Makefile is used to integrate the results of all analyses, ensuring efficient and reproducible workflows.
+## Git
+The full code and data a availiable in `git clone https://github.com/renlyly/611project.git`. If the files under the 'HW folder This is the develop version.
 
-3. Data Origin
-The original bulk transcriptome and associated clinical data are part of the PDBP and are publicly available upon request through the AMP-PD website: https://amp-pd.org. This data can be accessed for research purposes with the proper application and approval.
+## create the results: makefile
 
-4. Data Uploaded to GitHub
-While the full RNA-seq data cannot be included due to size limitations, the repository will contain the following:
+We can used the makefile to build the report. The best way to understand what the project does is to examine the Makefile.
 
-Metadata file: This includes the demographic and clinical information of participants.
-Propdata file: This includes the cell type proportion data for each participant.
-Both files are sufficient for analysis in this project, excluding the raw RNA sequence data.
+```         
+make report
+```
 
+The defualt setting of the report is pdf file. If you prefer the html version you can also generate the report with the following command:
 
---Shilin
+```         
+make report.html
+```
+
+We can also clean the project results, if we want to recreate the results we can run the following command the clean the previous results:
+
+```         
+make clean
+```
+
+IF we want to regenerate specific data and figure we can generate the data and figure with the following command as an example:
+
+```         
+make data.csv
+make cor_plot.jpg
+```
+
+# Report
+The main product of this analysis is A report on how the details of the results in Report.Rmd. Build the report to find out the details.
