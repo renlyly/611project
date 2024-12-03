@@ -2,24 +2,10 @@
 library(tidyverse)
 library(pROC)
 
-
 combined_data <- read_csv("data.csv")
 #subject_name<-unique(combined_data$participant_id)
 
 ####F####
-
-pdf('prop2_CD8_box.pdf',width = 4,height = 4)
-
-boxplot(CD8~case,prop_meta,varwidth=T,
-        main="",cex.axis=1.3,cex.lab=1.5,col='white',
-        ylim=c(0,0.5),xlab=" ",ylab="Proportion")
-stripchart(CD8~case, vertical = T, data = prop_meta , 
-           method = "jitter", add = TRUE, pch = 20,cex=0.5, col = alpha('#998ec3',0.3))
-
-#CD8 (wilcox:p < 2.2e-16)(p-value<2.2e-16, d = 0.045) 
-dev.off()
-
-
 roc_obj <- roc(combined_data$case, combined_data$prop2_CD8) # 2prop
 auc_val <- auc(roc_obj)
 ci_auc <- ci.auc(roc_obj)
