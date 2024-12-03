@@ -1,22 +1,22 @@
 ---
-title: "Report"
+title: "How cell type information help in identified patients"
 author: "Shilin Yu"
-date: "2024-10-10"
-output: html_document
+date: "2024-12-6"
+output: pdf_document
 ---
 
+# Data Background
 
 
+# Longitidindal data analysis
+
+# ROC 
 
 
-Some test
-```{r dataprocess, echo=FALSE}
-set.seed(123)  
-data <- sample(1:10, 5)
-barplot(data, main = "Sample Data Barplot", xlab = "Index", ylab = "Value")
-summary(data)
-mean(data)
-sd(data)
+#  Principal Component Analysis
 
-```
+#  Discussion
 
+# How to generate the report 
+
+This part should be finish in ReadME.

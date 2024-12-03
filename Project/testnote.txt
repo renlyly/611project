@@ -1,0 +1,11 @@
+prop_all.rds PDBP_metadata.csv 是必须的的数据集. 
+ 接下来我的要求是
+1. 用 data_process.R 生成后面画图需要的数据"Prop_imply.csv"  "data.csv" "meta.csv". data_process.R 需要prop_all.rds 和 PDBP_metadata.csv 
+2. 用 box_data.R 生成后面画图需要的数据"prop2_long.csv"  "prop2_sortl.csv". box_data.R 需要data.csv 和 prop_all.rds 
+3. 用 Plot_A.R 生成图bar_plot.jpg,  bar_plot_sort.jpg, bar_plot_sort2.jpg.  Plot_A.R 需要prop2_long.csv 和 "prop2_sortl.csv" 
+4. 用 Plot_B.R 生成图cor_plot.jpg. Plot_B.R 需要Prop_imply.csv
+5. 用 Plot_C.R 生成图box_plot_1.jpg. Plot_C.R 需要 data.csv 
+6. 用 Plot_D.R 生成图time_plotCD4.jpg,  time_plotCD4.jpg. Plot_D.R 需要data.csv 
+7. 用 Plot_E.R 生成图ROC_CD8.jdg. Plot_E.R 需要data.csv 
+8. 用 Plot_F.R 生成图PCA_plot1.jpg PCA_plot2.jpg. Plot_F.R 需要data.csv 
+9. 用 Report.Rmd.R 生成report.pdf. 需要前面所有的图
